@@ -4,6 +4,7 @@ namespace AzureStorageTableDemo
 {
     public class Person : TableEntity
     {
+        public const string Partition = "Key";
         public Person()
         {
             
@@ -11,7 +12,7 @@ namespace AzureStorageTableDemo
 
         public Person(string id, string name)
         {
-            this.PartitionKey = "Key";
+            this.PartitionKey = Partition;
             this.RowKey = id;
             this.Name = name;
         }

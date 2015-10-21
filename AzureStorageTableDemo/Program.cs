@@ -29,16 +29,30 @@ namespace AzureStorageTableDemo
             string personId;
             do
             {
-                Console.Write("Person Id to Lookup:");
+                Console.Write("Person Search Or Lookup:");
                 personId = Console.ReadLine();
                 if (!string.IsNullOrWhiteSpace(personId))
                 {
-                    var tableQuery = new TableQuery<Person>().Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, personId));
-
-                    var people = tableReference.ExecuteQuery(tableQuery);
-                    foreach (var person in people)
+                    int id;
+                    if (Int32.TryParse(personId, out id))
                     {
-                        Console.WriteLine("{0}:\t{1}", person.RowKey, person.Name);
+                        var tableOperation = TableOperation.Retrieve<Person>(Person.Partition, personId);
+                        var tableResult = tableReference.Execute(tableOperation);
+                        var person = (Person)tableResult.Result;
+                        if (person != null)
+                        {
+                            Console.WriteLine("{0}:\t{1}", person.RowKey, person.Name);
+                        }
+                    }
+                    else
+                    {
+                        var tableQuery =
+                            new TableQuery<Person>().Where(TableQuery.GenerateFilterCondition("Name", QueryComparisons.Equal, personId));
+                        var people = tableReference.ExecuteQuery(tableQuery);
+                        foreach (var person in people)
+                        {
+                            Console.WriteLine("{0}:\t{1}", person.RowKey, person.Name);
+                        }
                     }
                 }
             } while (!string.IsNullOrWhiteSpace(personId));
@@ -61,6 +75,6 @@ namespace AzureStorageTableDemo
                 cloudTable.ExecuteBatch(tableBatchOperation);
             }
         }
-        
+
     }
 }
